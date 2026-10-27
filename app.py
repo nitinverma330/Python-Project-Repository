@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
@@ -11,7 +12,7 @@ import qrcode
 from db import init_db, query_one, query_all, execute_query
 
 app = Flask(__name__)
-app.secret_key = 'qr-attendance-super-secret-key-12345'
+app.secret_key = os.getenv('SECRET_KEY', 'qr-attendance-super-secret-key-12345')
 
 # Initialize database tables
 init_db()
@@ -609,6 +610,6 @@ def admin_session_delete(session_id):
     return redirect(url_for('admin_sessions'))
 
 if __name__ == '__main__':
-    # Run on port 5001 so it can run alongside the port 5000 attendance system without conflict!
-    print("Starting QR Attendance System on http://127.0.0.1:5001 ...")
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get('PORT', 5001))
+    print(f"Starting QR Attendance System on port {port} ...")
+    app.run(host='0.0.0.0', port=port, debug=False)
