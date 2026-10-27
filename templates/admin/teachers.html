@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Faculty - QR Attendance Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" style="gap: 1rem;">
+    <div>
+        <h1 class="mb-1"><i class="fa-solid fa-chalkboard-user text-primary me-2"></i>Faculty Management</h1>
+        <p class="text-muted mb-0">Create new instructor accounts, update faculty details, or remove instructors.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin_teacher_create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-user-plus me-1"></i> Add New Faculty
+        </a>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap" style="gap: 0.75rem;">
+        <span class="fw-bold"><i class="fa-solid fa-list me-2"></i>Faculty Roster ({{ teachers|length }})</span>
+        <div class="search-bar-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="teacherSearchInput" class="form-control" placeholder="Search by name, ID, or email..." onkeyup="filterTeachers()">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0" id="teachersTable">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Faculty ID</th>
+                        <th>Full Name</th>
+                        <th>Email Address</th>
+                        <th class="text-center" style="width: 160px;">Sessions Created</th>
+                        <th class="text-end" style="width: 180px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in teachers %}
+                    <tr class="teacher-row">
+                        <td><code>{{ t.faculty_id or t.teacher_id }}</code></td>
+                        <td>
+                            <div class="fw-bold">{{ t.name }}</div>
+                        </td>
+                        <td>{{ t.email }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-primary">
+                                <i class="fa-solid fa-qrcode me-1"></i>{{ t.session_count }}
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="table-actions justify-content-end">
+                                <a href="{{ url_for('admin_teacher_edit', teacher_id=t.id) }}" class="btn btn-sm btn-outline-primary" title="Edit Faculty">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                                </a>
+                                <form method="POST" action="{{ url_for('admin_teacher_delete', teacher_id=t.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete faculty member {{ t.name }} ({{ t.faculty_id or t.teacher_id }})? This will also remove any attendance sessions created by this instructor.');">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete Faculty">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center p-4 text-muted">
+                            <i class="fa-regular fa-folder-open mb-2" style="font-size: 2rem;"></i>
+                            <p class="mb-0">No faculty members found. Click "Add New Faculty" above to get started.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterTeachers() {
+    const input = document.getElementById('teacherSearchInput');
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll('#teachersTable tbody tr.teacher-row');
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

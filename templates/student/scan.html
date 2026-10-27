@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Scan QR - Student Attendance{% endblock %}
+
+{% block extra_head %}
+<!-- HTML5-QRCode Scanner Library (Lightweight & Reliable) -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-3 align-items-center">
+    <div class="col-md-8">
+        <h2>Welcome, {{ session.get('student_name') }}</h2>
+        <p class="text-muted">Student ID: <strong>{{ session.get('student_id') }}</strong> &bull; Point camera at the teacher's screen to mark attendance.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Camera QR Scanner Column -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <i class="fa-solid fa-camera me-2"></i> Live Camera QR Scanner
+            </div>
+            <div class="card-body p-4 text-center">
+                <div id="reader" style="width: 100%; min-height: 260px; background: #0f172a; border-radius: 8px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                    <div id="placeholderText">
+                        <i class="fa-solid fa-camera fa-2x mb-2 d-block"></i>
+                        Camera preview will appear here
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2 mb-3">
+                    <button id="startScanBtn" class="btn btn-success">
+                        <i class="fa-solid fa-play me-1"></i> Start Camera Scanner
+                    </button>
+                    <button id="stopScanBtn" class="btn btn-secondary" style="display: none;">
+                        <i class="fa-solid fa-stop me-1"></i> Stop Camera
+                    </button>
+                </div>
+                <div id="scanStatus" class="text-muted" style="font-size: 0.875rem;">
+                    Click <strong>"Start Camera Scanner"</strong> and allow camera access.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fallback Manual PIN Entry Column -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fa-solid fa-keyboard me-2"></i> Or Enter 6-Digit Session Code
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted" style="font-size: 0.9rem;">
+                    If your device does not have a working camera, type the 6-digit code displayed on your teacher's projector screen:
+                </p>
+                <form method="POST" action="{{ url_for('enter_code') }}">
+                    <div class="mb-3">
+                        <input type="text" name="session_code" class="form-control form-control-lg text-center" 
+                               placeholder="e.g. 583921" maxlength="6" pattern="[0-9]{6}" required
+                               style="font-family: monospace; font-size: 1.5rem; letter-spacing: 5px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fa-solid fa-check me-2"></i> Submit Attendance Code
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Student Attendance History -->
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <i class="fa-solid fa-clock-rotate-left me-2"></i> Your Recent Marked Attendances
+            </div>
+            <div class="card-body p-0" style="max-height: 250px; overflow-y: auto;">
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Teacher</th>
+                            <th>Time Marked</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if history %}
+                            {% for r in history %}
+                            <tr>
+                                <td><strong>{{ r.subject }}</strong></td>
+                                <td>{{ r.teacher_name }}</td>
+                                <td>{{ r.marked_at }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center p-3 text-muted">No attendance marked yet.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let html5QrCode = null;
+
+    const startBtn = document.getElementById('startScanBtn');
+    const stopBtn = document.getElementById('stopScanBtn');
+    const statusDiv = document.getElementById('scanStatus');
+    const placeholder = document.getElementById('placeholderText');
+
+    function onScanSuccess(decodedText, decodedResult) {
+        statusDiv.innerHTML = `<span class="text-success"><i class="fa-solid fa-circle-check"></i> QR Code detected! Redirecting...</span>`;
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                redirectScanned(decodedText);
+            }).catch(() => redirectScanned(decodedText));
+        } else {
+            redirectScanned(decodedText);
+        }
+    }
+
+    function redirectScanned(text) {
+        // If text is a full URL, navigate to it
+        if (text.startsWith('http://') || text.startsWith('https://')) {
+            window.location.href = text;
+        } else {
+            // Treat as token
+            window.location.href = '/mark/' + encodeURIComponent(text);
+        }
+    }
+
+    startBtn.addEventListener('click', function() {
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("reader");
+        }
+
+        if (placeholder) placeholder.style.display = 'none';
+        statusDiv.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> Initializing camera...`;
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+            .then(() => {
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-flex';
+                statusDiv.innerHTML = `<span class="text-success"><i class="fa-solid fa-video me-1"></i> Camera active. Aim at QR Code.</span>`;
+            })
+            .catch(err => {
+                console.error("Camera start error:", err);
+                statusDiv.innerHTML = `<span class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Camera permission denied or not found. You can enter the 6-digit code on the right instead!</span>`;
+                if (placeholder) placeholder.style.display = 'block';
+            });
+    });
+
+    stopBtn.addEventListener('click', function() {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                startBtn.style.display = 'inline-flex';
+                stopBtn.style.display = 'none';
+                statusDiv.innerHTML = `Camera stopped. Click Start to scan again.`;
+                if (placeholder) placeholder.style.display = 'block';
+            });
+        }
+    });
+</script>
+{% endblock %}

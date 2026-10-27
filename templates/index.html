@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}QR Attendance Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center text-center mt-3 mb-5">
+    <div class="col-md-8">
+        <h1 class="fw-bold" style="color: var(--primary);">Smart QR Attendance System</h1>
+        <p class="text-muted" style="font-size: 1.1rem;">
+            Fast, secure, touchless attendance verification. Teachers generate dynamic QR codes, students scan from their phones or laptops to mark attendance in real-time.
+        </p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <!-- Teacher Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow" style="height: 100%;">
+            <div class="card-header bg-dark text-white">
+                <i class="fa-solid fa-chalkboard-user me-2"></i> Faculty Portal
+            </div>
+            <div class="card-body text-center p-4 d-flex" style="flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="font-size: 2.8rem; color: var(--primary); margin-bottom: 1rem;">
+                        <i class="fa-solid fa-qrcode"></i>
+                    </div>
+                    <h4>Create QR Session</h4>
+                    <p class="text-muted" style="font-size: 0.9rem;">
+                        Generate dynamic, time-limited QR codes. Project on screen for students, monitor live attendees in real time.
+                    </p>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('teacher_login') }}" class="btn btn-primary btn-lg w-100">
+                        <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Teacher Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow" style="height: 100%;">
+            <div class="card-header bg-success text-white">
+                <i class="fa-solid fa-user-graduate me-2"></i> Student Portal
+            </div>
+            <div class="card-body text-center p-4 d-flex" style="flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="font-size: 2.8rem; color: var(--success); margin-bottom: 1rem;">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <h4>Scan & Mark Attendance</h4>
+                    <p class="text-muted" style="font-size: 0.9rem;">
+                        Scan the teacher's projected QR code using your phone or webcam, or enter the 6-digit session PIN code.
+                    </p>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('student_scan') }}" class="btn btn-success btn-lg w-100">
+                        <i class="fa-solid fa-camera me-2"></i> Open Scanner
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow" style="height: 100%;">
+            <div class="card-header bg-purple">
+                <i class="fa-solid fa-user-shield me-2"></i> Admin Portal
+            </div>
+            <div class="card-body text-center p-4 d-flex" style="flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="font-size: 2.8rem; color: var(--purple); margin-bottom: 1rem;">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h4>System Administration</h4>
+                    <p class="text-muted" style="font-size: 0.9rem;">
+                        Manage instructors, enroll and edit students, view real-time metrics, and oversee all classroom attendance.
+                    </p>
+                </div>
+                <div class="mt-4">
+                    <a href="{{ url_for('admin_login') }}" class="btn btn-purple btn-lg w-100">
+                        <i class="fa-solid fa-sliders me-2"></i> Admin Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

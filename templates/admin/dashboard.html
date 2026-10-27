@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - QR Attendance System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" style="gap: 1rem;">
+    <div>
+        <h1 class="mb-1"><i class="fa-solid fa-gauge-high text-primary me-2"></i>Admin Overview</h1>
+        <p class="text-muted mb-0">System configuration, faculty management, student rosters, and live attendance metrics.</p>
+    </div>
+    <div class="d-flex align-items-center" style="gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{{ url_for('admin_teacher_create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-user-plus me-1"></i> Add Faculty
+        </a>
+        <a href="{{ url_for('admin_student_create') }}" class="btn btn-success">
+            <i class="fa-solid fa-graduation-cap me-1"></i> Add Student
+        </a>
+    </div>
+</div>
+
+<!-- KPI Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <i class="fa-solid fa-chalkboard-user"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_teachers }}</h3>
+                <span>Total Faculty</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon success">
+                <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_students }}</h3>
+                <span>Total Students</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_sessions }}</h3>
+                <span>QR Sessions</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon warning">
+                <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_records }}</h3>
+                <span>Present Records</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Active Session Alert if any are active -->
+{% if stats.active_sessions > 0 %}
+<div class="alert alert-warning mb-4">
+    <div>
+        <i class="fa-solid fa-tower-broadcast me-2"></i>
+        <strong>{{ stats.active_sessions }} Live QR Session(s)</strong> are currently running in classrooms right now.
+    </div>
+    <a href="{{ url_for('admin_sessions') }}" class="btn btn-sm btn-primary">View Live Sessions</a>
+</div>
+{% endif %}
+
+<!-- Quick Management Section -->
+<div class="row mb-4">
+    <!-- Quick Links Box -->
+    <div class="col-md-4">
+        <div class="card shadow" style="height: 100%;">
+            <div class="card-header bg-dark text-white">
+                <i class="fa-solid fa-sliders me-2"></i> System Management
+            </div>
+            <div class="card-body p-0">
+                <div style="display: flex; flex-direction: column;">
+                    <a href="{{ url_for('admin_teachers') }}" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); color: var(--text-main); text-decoration: none;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Faculty Management</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">Create, edit & manage instructors</div>
+                            </div>
+                        </div>
+                        <span class="badge bg-primary">{{ stats.total_teachers }}</span>
+                    </a>
+
+                    <a href="{{ url_for('admin_students') }}" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border-color); color: var(--text-main); text-decoration: none;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--success-light); color: var(--success); display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Student Roster</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">Enroll, edit & track student records</div>
+                            </div>
+                        </div>
+                        <span class="badge bg-success">{{ stats.total_students }}</span>
+                    </a>
+
+                    <a href="{{ url_for('admin_sessions') }}" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; color: var(--text-main); text-decoration: none;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--purple-light); color: var(--purple); display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Attendance Sessions</div>
+                                <div class="text-muted" style="font-size: 0.8rem;">Monitor live & archived sessions</div>
+                            </div>
+                        </div>
+                        <span class="badge bg-purple">{{ stats.total_sessions }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sessions Table -->
+    <div class="col-md-8">
+        <div class="card shadow" style="height: 100%;">
+            <div class="card-header bg-white">
+                <span class="fw-bold"><i class="fa-solid fa-qrcode me-2 text-primary"></i>Recent Attendance Sessions</span>
+                <a href="{{ url_for('admin_sessions') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_sessions %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Course</th>
+                                <th>Faculty</th>
+                                <th>PIN</th>
+                                <th>Attendees</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in recent_sessions %}
+                            <tr>
+                                <td><strong>{{ s.subject }}</strong></td>
+                                <td><span class="badge bg-secondary">{{ s.course }}</span></td>
+                                <td>{{ s.teacher_name }}</td>
+                                <td><code>{{ s.session_code }}</code></td>
+                                <td>
+                                    <span class="badge bg-primary"><i class="fa-solid fa-user-check me-1"></i>{{ s.attendee_count }}</span>
+                                </td>
+                                <td>
+                                    {% if s.is_active %}
+                                        <span class="badge bg-success"><i class="fa-solid fa-circle-dot me-1"></i>Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Closed</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('teacher_session_view', session_id=s.id) }}" class="btn btn-sm btn-outline-primary" target="_blank" title="View Projector Screen">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center p-4 text-muted">
+                    <i class="fa-regular fa-folder-open mb-2" style="font-size: 2rem;"></i>
+                    <p class="mb-0">No attendance sessions created yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Attendee Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <span class="fw-bold"><i class="fa-solid fa-list-check me-2 text-success"></i>Latest Attendance Logs</span>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_records %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Course</th>
+                                <th>Subject</th>
+                                <th>Instructor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in recent_records %}
+                            <tr>
+                                <td><small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ r.marked_at }}</small></td>
+                                <td><code>{{ r.student_id }}</code></td>
+                                <td class="fw-bold">{{ r.student_name }}</td>
+                                <td><span class="badge bg-secondary">{{ r.course }}</span></td>
+                                <td>{{ r.subject }}</td>
+                                <td>{{ r.teacher_name }}</td>
+                                <td><span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>{{ r.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center p-4 text-muted">
+                    <p class="mb-0">No attendance records have been marked yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

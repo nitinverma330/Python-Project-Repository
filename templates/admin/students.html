@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Students - QR Attendance Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" style="gap: 1rem;">
+    <div>
+        <h1 class="mb-1"><i class="fa-solid fa-user-graduate text-success me-2"></i>Student Roster</h1>
+        <p class="text-muted mb-0">Enroll new students, modify course enrollments, or remove students from the directory.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin_student_create') }}" class="btn btn-success">
+            <i class="fa-solid fa-graduation-cap me-1"></i> Add New Student
+        </a>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap" style="gap: 0.75rem;">
+        <span class="fw-bold"><i class="fa-solid fa-users me-2"></i>Enrolled Students ({{ students|length }})</span>
+        <div class="search-bar-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="studentSearchInput" class="form-control" placeholder="Search by name, ID, course..." onkeyup="filterStudents()">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 140px;">Student ID</th>
+                        <th>Student Name</th>
+                        <th>Email Address</th>
+                        <th style="width: 130px;">Course</th>
+                        <th class="text-center" style="width: 140px;">Attendance</th>
+                        <th class="text-end" style="width: 200px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr class="student-row">
+                        <td><code>{{ s.student_id }}</code></td>
+                        <td>
+                            <div class="fw-bold">{{ s.name }}</div>
+                        </td>
+                        <td>{{ s.email }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ s.course }}</span>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('admin_student_history', student_id=s.id) }}" class="badge bg-success" title="View Detailed Attendance" style="text-decoration: none;">
+                                <i class="fa-solid fa-clipboard-check me-1"></i>{{ s.attendance_count }}
+                            </a>
+                        </td>
+                        <td class="text-end">
+                            <div class="table-actions justify-content-end">
+                                <a href="{{ url_for('admin_student_history', student_id=s.id) }}" class="btn btn-sm btn-outline-primary" title="View Attendance History">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                </a>
+                                <a href="{{ url_for('admin_student_edit', student_id=s.id) }}" class="btn btn-sm btn-outline-primary" title="Edit Student">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                                </a>
+                                <form method="POST" action="{{ url_for('admin_student_delete', student_id=s.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete student {{ s.name }} ({{ s.student_id }})? This will also remove their attendance logs.');">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete Student">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center p-4 text-muted">
+                            <i class="fa-regular fa-folder-open mb-2" style="font-size: 2rem;"></i>
+                            <p class="mb-0">No students enrolled yet. Click "Add New Student" above to enroll.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterStudents() {
+    const input = document.getElementById('studentSearchInput');
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll('#studentsTable tbody tr.student-row');
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

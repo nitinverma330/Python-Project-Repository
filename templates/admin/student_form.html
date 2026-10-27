@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Student' if action == 'edit' else 'Enroll New Student' }} - Admin{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <i class="fa-solid fa-{{ 'user-pen' if action == 'edit' else 'graduation-cap' }} me-2"></i>
+                {{ 'Edit Student Profile' if action == 'edit' else 'Enroll New Student' }}
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="student_id">
+                            <i class="fa-solid fa-id-card me-1 text-muted"></i> Student Roll Number / ID
+                        </label>
+                        <input type="text" id="student_id" name="student_id" class="form-control"
+                               placeholder="e.g. MCA2026004"
+                               value="{{ student.student_id if student else '' }}"
+                               {{ 'readonly style="background-color: var(--gray-100);"' if action == 'edit' else 'required autofocus' }}>
+                        {% if action == 'edit' %}
+                            <small class="text-muted">Student ID / Roll Number cannot be modified once created.</small>
+                        {% else %}
+                            <small class="text-muted">Unique roll number (e.g. MCA2026004, BT26019).</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="name">
+                            <i class="fa-solid fa-user me-1 text-muted"></i> Full Name
+                        </label>
+                        <input type="text" id="name" name="name" class="form-control"
+                               placeholder="e.g. Rohit Sharma"
+                               value="{{ student.name if student else '' }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="email">
+                            <i class="fa-solid fa-envelope me-1 text-muted"></i> Email Address
+                        </label>
+                        <input type="email" id="email" name="email" class="form-control"
+                               placeholder="e.g. rohit@university.edu"
+                               value="{{ student.email if student else '' }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="course">
+                            <i class="fa-solid fa-book-open me-1 text-muted"></i> Course / Program
+                        </label>
+                        <input type="text" id="course" name="course" class="form-control"
+                               placeholder="e.g. MCA, B.Tech CSE, BCA"
+                               value="{{ student.course if student else '' }}" required list="courseOptions">
+                        <datalist id="courseOptions">
+                            <option value="MCA">
+                            <option value="B.Tech CSE">
+                            <option value="B.Tech IT">
+                            <option value="BCA">
+                            <option value="BBA">
+                            <option value="MBA">
+                            <option value="M.Tech">
+                        </datalist>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="password">
+                            <i class="fa-solid fa-lock me-1 text-muted"></i> Password
+                        </label>
+                        <input type="password" id="password" name="password" class="form-control"
+                               placeholder="••••••••"
+                               {{ 'required' if action == 'create' else '' }}>
+                        {% if action == 'edit' %}
+                            <small class="text-muted">Leave blank if you do NOT want to change the student's password.</small>
+                        {% else %}
+                            <small class="text-muted">Used by student to log in and confirm attendance.</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="{{ url_for('admin_students') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-xmark me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa-solid fa-check me-1"></i> {{ 'Save Changes' if action == 'edit' else 'Enroll Student' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

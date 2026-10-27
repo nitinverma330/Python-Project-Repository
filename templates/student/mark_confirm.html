@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Confirmation{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+
+        {% if status == 'success' %}
+        <div class="card shadow text-center p-4">
+            <div class="success-checkmark">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h2 class="text-success mb-2">Attendance Marked!</h2>
+            <p class="text-muted mb-4">Your presence has been successfully registered in the system.</p>
+
+            <div class="card p-3 mb-4 text-start" style="background: #f8fafc; border: 1px solid var(--border-color);">
+                <div class="mb-2"><strong>Subject:</strong> {{ session_data.subject }}</div>
+                <div class="mb-2"><strong>Course:</strong> {{ session_data.course }}</div>
+                <div class="mb-2"><strong>Student:</strong> {{ student_name }} ({{ student_id }})</div>
+                <div><strong>Timestamp:</strong> {{ marked_at }}</div>
+            </div>
+
+            <div>
+                <a href="{{ url_for('student_scan') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Return to Scanner
+                </a>
+            </div>
+        </div>
+
+        {% elif status == 'already_marked' %}
+        <div class="card shadow text-center p-4">
+            <div style="font-size: 3.5rem; color: var(--warning); margin-bottom: 1rem;">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h2 style="color: var(--warning);" class="mb-2">Already Marked!</h2>
+            <p class="text-muted mb-4">You have already submitted your attendance for this class.</p>
+
+            <div class="card p-3 mb-4 text-start" style="background: #f8fafc; border: 1px solid var(--border-color);">
+                <div class="mb-2"><strong>Subject:</strong> {{ session_data.subject }}</div>
+                <div class="mb-2"><strong>Student:</strong> {{ student_name }} ({{ student_id }})</div>
+                <div><strong>First Recorded At:</strong> {{ marked_at }}</div>
+            </div>
+
+            <div>
+                <a href="{{ url_for('student_scan') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Return to Scanner
+                </a>
+            </div>
+        </div>
+
+        {% elif status == 'login_required' %}
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white text-center">
+                <i class="fa-solid fa-qrcode me-2"></i> Confirm Attendance
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h4>{{ session_data.subject }}</h4>
+                    <span class="badge bg-primary">{{ session_data.course }}</span>
+                    <p class="text-muted mt-2">Please enter your Student ID and Password to record attendance:</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('mark_qr', token=session_data.session_token) }}">
+                    <div class="mb-3">
+                        <label class="form-label">Student ID</label>
+                        <input type="text" class="form-control" name="student_id" placeholder="e.g. MCA2026001" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg w-100">
+                        <i class="fa-solid fa-check-circle me-2"></i> Confirm & Mark Present
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% elif status == 'expired' %}
+        <div class="card shadow text-center p-4">
+            <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1rem;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <h2 class="text-danger mb-2">QR Code Expired</h2>
+            <p class="text-muted mb-4">{{ message }}</p>
+
+            <div class="card p-3 mb-4 text-start" style="background: #f8fafc; border: 1px solid var(--border-color);">
+                <div class="mb-2"><strong>Subject:</strong> {{ session_data.subject }}</div>
+                <div><strong>Expired At:</strong> {{ session_data.expires_at }}</div>
+            </div>
+
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fa-solid fa-house me-1"></i> Return to Home
+                </a>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="card shadow text-center p-4">
+            <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h2 class="text-danger mb-2">Invalid Attendance QR</h2>
+            <p class="text-muted mb-4">{{ message or 'The scanned QR code is invalid or has been deleted.' }}</p>
+
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-house me-1"></i> Return to Home
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

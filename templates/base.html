@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QR Attendance System{% endblock %}</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Clean External Vanilla CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fa-solid fa-qrcode me-2 text-primary" style="font-size: 1.3rem;"></i>
+                <span>Invertis QR Attend</span>
+            </a>
+            <button class="navbar-toggler" type="button" id="navbarToggler" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if session.get('role') == 'admin' %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_dashboard') }}"><i class="fa-solid fa-gauge-high me-1"></i> Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_teachers') }}"><i class="fa-solid fa-chalkboard-user me-1"></i> Faculty</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_students') }}"><i class="fa-solid fa-user-graduate me-1"></i> Students</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_sessions') }}"><i class="fa-solid fa-qrcode me-1"></i> Sessions</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" href="{{ url_for('admin_logout') }}"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
+                    {% elif session.get('role') == 'teacher' %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_dashboard') }}"><i class="fa-solid fa-gauge me-1"></i> Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('create_session') }}"><i class="fa-solid fa-plus-circle me-1"></i> New Session</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" href="{{ url_for('teacher_logout') }}"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
+                    {% elif session.get('role') == 'student' %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('student_scan') }}"><i class="fa-solid fa-camera me-1"></i> Scan QR</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger" href="{{ url_for('student_logout') }}"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('teacher_login') }}"><i class="fa-solid fa-chalkboard-user me-1"></i> Teacher Portal</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('student_scan') }}"><i class="fa-solid fa-user-graduate me-1"></i> Student Portal</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 85px; padding-bottom: 50px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="alert-container mb-4">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                <div><i class="fa-solid fa-circle-info me-2"></i>{{ message }}</div>
+                <button type="button" class="btn-close" onclick="this.closest('.alert').remove()">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        const toggler = document.getElementById('navbarToggler');
+        const collapse = document.getElementById('navbarNav');
+        if (toggler && collapse) {
+            toggler.addEventListener('click', () => collapse.classList.toggle('show'));
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

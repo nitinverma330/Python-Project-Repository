@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit Faculty' if action == 'edit' else 'Add New Faculty' }} - Admin{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <i class="fa-solid fa-{{ 'user-pen' if action == 'edit' else 'user-plus' }} me-2"></i>
+                {{ 'Edit Faculty Profile' if action == 'edit' else 'Register New Faculty Member' }}
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="teacher_id">
+                            <i class="fa-solid fa-id-badge me-1 text-muted"></i> Faculty ID / Employee Code
+                        </label>
+                        <input type="text" id="teacher_id" name="teacher_id" class="form-control"
+                            placeholder="e.g. F101" value="{{ (teacher.faculty_id if teacher.faculty_id else teacher.teacher_id) if teacher else '' }}"
+                            {{ 'readonly style="background-color: var(--gray-100);"' if action=='edit'
+                            else 'required autofocus' }}>
+                        {% if action == 'edit' %}
+                        <small class="text-muted">Faculty ID cannot be changed once assigned.</small>
+                        {% else %}
+                        <small class="text-muted">Must be a unique faculty identifier (e.g. F101, FAC-045).</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="name">
+                            <i class="fa-solid fa-user me-1 text-muted"></i> Full Name
+                        </label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Your full name"
+                            value="{{ teacher.name if teacher else '' }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="email">
+                            <i class="fa-solid fa-envelope me-1 text-muted"></i> Email Address
+                        </label>
+                        <input type="email" id="email" name="email" class="form-control"
+                            placeholder="e.g. priya@university.edu" value="{{ teacher.email if teacher else '' }}"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="password">
+                            <i class="fa-solid fa-lock me-1 text-muted"></i> Password
+                        </label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
+                            {{ 'required' if action=='create' else '' }}>
+                        {% if action == 'edit' %}
+                        <small class="text-muted">Leave blank if you do NOT want to change the instructor's current
+                            password.</small>
+                        {% else %}
+                        <small class="text-muted">Minimum 6 characters recommended.</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="{{ url_for('admin_teachers') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-xmark me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-check me-1"></i> {{ 'Save Changes' if action == 'edit' else 'Create
+                            Faculty Account' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

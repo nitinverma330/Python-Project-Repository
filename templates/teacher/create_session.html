@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Create QR Attendance Session{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-3">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <i class="fa-solid fa-qrcode me-2"></i> Create Attendance Session & QR
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('create_session') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Subject / Class Name</label>
+                        <input type="text" class="form-control" name="subject" placeholder="e.g. MCA 301 - Advanced Web Technologies" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Course / Batch</label>
+                        <input type="text" class="form-control" name="course" placeholder="e.g. MCA 3rd Sem" value="MCA" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">QR Code Validity Duration</label>
+                        <select name="duration" class="form-select">
+                            <option value="5">5 Minutes (Recommended for active classes)</option>
+                            <option value="10" selected>10 Minutes</option>
+                            <option value="15">15 Minutes</option>
+                            <option value="30">30 Minutes</option>
+                            <option value="60">1 Hour</option>
+                        </select>
+                        <small class="text-muted">The QR code will automatically expire after this duration to prevent cheating or late submissions.</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fa-solid fa-bolt me-2"></i> Generate QR Code & Start Session
+                    </button>
+                </form>
+                <div class="mt-3 text-center">
+                    <a href="{{ url_for('teacher_dashboard') }}" class="text-muted"><i class="fa-solid fa-arrow-left me-1"></i> Cancel & Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

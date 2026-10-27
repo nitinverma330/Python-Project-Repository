@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}All Sessions - QR Attendance Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap" style="gap: 1rem;">
+    <div>
+        <h1 class="mb-1"><i class="fa-solid fa-qrcode text-primary me-2"></i>Attendance Sessions</h1>
+        <p class="text-muted mb-0">Master catalog of all live, past, and completed QR attendance sessions.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap" style="gap: 0.75rem;">
+        <span class="fw-bold"><i class="fa-solid fa-layer-group me-2"></i>All Sessions ({{ sessions|length }})</span>
+        <div class="search-bar-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="sessionSearchInput" class="form-control" placeholder="Search by subject, teacher, PIN..." onkeyup="filterSessions()">
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0" id="sessionsTable">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Course</th>
+                        <th>Faculty</th>
+                        <th class="text-center" style="width: 100px;">PIN Code</th>
+                        <th>Created At</th>
+                        <th>Expires At</th>
+                        <th class="text-center" style="width: 110px;">Attendees</th>
+                        <th style="width: 100px;">Status</th>
+                        <th class="text-end" style="width: 170px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sessions %}
+                    <tr class="session-row">
+                        <td><strong>{{ s.subject }}</strong></td>
+                        <td><span class="badge bg-secondary">{{ s.course }}</span></td>
+                        <td>{{ s.teacher_name }}</td>
+                        <td class="text-center"><code>{{ s.session_code }}</code></td>
+                        <td><small class="text-muted">{{ s.created_at }}</small></td>
+                        <td><small class="text-muted">{{ s.expires_at }}</small></td>
+                        <td class="text-center">
+                            <span class="badge bg-primary">
+                                <i class="fa-solid fa-user-check me-1"></i>{{ s.attendee_count }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if s.is_active %}
+                                <span class="badge bg-success"><i class="fa-solid fa-circle-dot me-1"></i>Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Closed</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="table-actions justify-content-end">
+                                <a href="{{ url_for('teacher_session_view', session_id=s.id) }}" class="btn btn-sm btn-outline-primary" target="_blank" title="View Projector & Roster">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </a>
+                                {% if s.is_active %}
+                                <form method="POST" action="{{ url_for('admin_session_end', session_id=s.id) }}" style="display: inline;" onsubmit="return confirm('End this active attendance session now?');">
+                                    <button type="submit" class="btn btn-sm btn-secondary" title="End Session Immediately">
+                                        <i class="fa-solid fa-stop"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('admin_session_delete', session_id=s.id) }}" style="display: inline;" onsubmit="return confirm('Delete session for {{ s.subject }} and its {{ s.attendee_count }} attendance records permanently?');">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete Session Permanently">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center p-4 text-muted">
+                            <i class="fa-regular fa-folder-open mb-2" style="font-size: 2rem;"></i>
+                            <p class="mb-0">No attendance sessions recorded yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterSessions() {
+    const input = document.getElementById('sessionSearchInput');
+    const filter = input.value.toLowerCase();
+    const rows = document.querySelectorAll('#sessionsTable tbody tr.session-row');
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}
